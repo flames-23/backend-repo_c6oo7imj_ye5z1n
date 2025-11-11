@@ -11,10 +11,10 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional, List
 
-# Example schemas (replace with your own):
+# Example schemas (retain for reference):
 
 class User(BaseModel):
     """
@@ -22,8 +22,8 @@ class User(BaseModel):
     Collection name: "user" (lowercase of class name)
     """
     name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
+    email: EmailStr = Field(..., description="Email address")
+    address: Optional[str] = Field(None, description="Address")
     age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
     is_active: bool = Field(True, description="Whether user is active")
 
@@ -38,11 +38,39 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
 # --------------------------------------------------
+# Portfolio app schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Project(BaseModel):
+    """
+    Portfolio projects
+    Collection name: "project"
+    """
+    title: str
+    category: str = Field(..., description="Home | Office | Furniture | Decor")
+    description: Optional[str] = None
+    images: List[str] = Field(default_factory=list, description="Array of image URLs")
+    featured: bool = Field(default=False)
+
+class Testimonial(BaseModel):
+    """
+    Client testimonials
+    Collection name: "testimonial"
+    """
+    client_name: str
+    project_type: str
+    quote: str
+    avatar: Optional[str] = None
+    rating: Optional[int] = Field(default=5, ge=1, le=5)
+
+class Inquiry(BaseModel):
+    """
+    Contact/consultation inquiries
+    Collection name: "inquiry"
+    """
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    project_type: Optional[str] = None
+    message: Optional[str] = None
+    source: Optional[str] = Field(default="website")
